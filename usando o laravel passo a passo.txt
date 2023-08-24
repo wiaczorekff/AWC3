@@ -1,0 +1,7 @@
+usando cmd:
+para baixar o laravel primeiro verificar se o php está instalado usando o comando php -v no cmd
+depois digitar composer
+depois ir a pasta do usuario e usar cd .. para voltar e para ir para alguma pasta digitar cd nome da pasta
+depois usar este comando: composer create-project laravel/laravel:^10.* aula-02
+qualquer duvida consultar o thyago-quintas.gitbook.io/laravel
+
