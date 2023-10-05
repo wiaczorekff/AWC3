@@ -1,0 +1,128 @@
+criando o projeto em lala.
+
+>composer create-project laravel/laravel:^10.* nome-do-app
+
+>configure ambiente banco dados (.env)
+
+>beekeper -> create database nome do banco.(crie usando os proprios comandos no beekeper)
+
+>php artisan make:model cayegory -crm (no singular)
+
+>php artisan make:model product -cmr
+
+
+>>index -mostra todos os produtos
+>>create - mostra o formulário para criar produto.
+>>store - guarda no banco
+>>show - mostra apenas 1 produto
+>>edit - mostra o formulario para editar 1 produto
+>>update - atualiza o formulário 
+>>destroy - deleta o produto
+
+
+passo 1: pasta routes -> web.php e edita a rota  Route::resource('/products',ProductController::class);
+lembrar de criar o 'use' use App\Http\Controllers\ProductController;
+
+
+passo 2: ir até a pasta das controllers e ir na respctiva pasta que estiver editando 'ProductController'
+colocar os retruns das pastas que irá acessar.
+public function index()
+    {
+        return view('products.index', ['products' => Product::all()]); //aqui ele irá acessar o elemento index da pasta products.
+									//o 'products' é o nome da variavel que poderemos puxar no blade.
+									//o Product::all() irá puxar todos os elementos cadastrados.
+    }
+
+
+
+passo 3: pasta resources e depois views e criar as pastas '.blade.php'
+as pastas index, show, edit e create.
+
+
+
+passo 4: pasta database depois migrations.
+procure o arquivo respectivo na migration e adicione as tabelas ao banco sempre no 'up'
+	    $table ->string('nome');
+            $table ->string('descricao');
+            $table ->decimal('preco',10, 2);
+            $table ->unsignedBigInteger('category_id');
+logo após no terminal use o php artisan migrate e ele irá criar as tabelas no banco.
+obs:. caso você tenha esquecido de fazer alguma tabela, vá no terminal e digite php artisan migrate:rollback. o migrate não funciona 2 vezes seguidas.
+
+
+
+passo 5: vá na pasta models e procure o arquivo correspondente e adicione oque ele vai receber.
+class product extends Model
+{
+    use HasFactory;
+    protected $fillable = ['nome','descricao','preco','category_id']; //adicione essa linha
+}
+ 
+aqui seu arquivo vai ficar protegido e os campos que podem ser preenchidos serão definidos.
+
+
+
+
+passo 6: criamos o show na controller e na pasta products views
+no arquivos usamos dessa forma para aparecer:
+<h1>{{ $product->nome }} - R${{ $product->preco }}</h1>
+<p> {{ $product->descricao }} </p>
+
+aqui irá aparecer o nome do produto, o preço ao lado do nome e a descrição logo abaixo.
+usamos a interpolação para chamar oque tiver nas tabelas do banco {{}}
+lembrete, no navegador digite products/1 para chamar o produto especifico que é a função show. mostrar um especifico.
+no beekeeper podemos criar um produto e uma categoria para testes. só ir até o icone '+' no canto inferior direito e criar nas tabelas e depois apply.
+
+
+
+
+passo 7: criamos o formulario do create. 
+primeiro na productcontroller 
+public function create()
+    {
+        return view('products.create', ['categories' => Category::all()]);
+    }
+
+e não podemos esquecer de adicionar o 'use' 
+use App\Models\category;
+
+depois devemos criar o arquivo blade na pasta products e fazemos o formulario para que ele crie o produto desejado junto com a categoria.
+<form action={{ route('products.store') }} method="POST">
+
+<div>
+        <label>nome do produto </label>
+        <input type="text" name="nome">
+</div>
+
+<div>
+        <label>descrição </label>
+        <input type="text" name="descricao">
+</div>
+<div>
+        <label>preço</label>
+        <input type="text" name="preco">
+</div>
+<div>
+    <select name="category_id">
+        @foreach ($categories as $category)
+        <option value="{{$category -> id}}"> {{$category->nome}}</option>
+        @endforeach
+    </select>
+</div>
+
+        <button type="submit">salvar</button>
+
+</form>
+
+
+
+
+passo 8: adicione o @csrf logo abaixo do form. isso é para segurança e não adiciona-lo no formulario irá ocasionar em erro.
+
+
+passo 9: implementar a store.
+public function store(Request $request)
+    {
+        product::create($request->all()); //aqui ele vai puxar da create o request para salvar no banco
+        return redirect(route('products.index')); //aqui ele retorna para a pagina principal logo após cadastrar 
+    }
